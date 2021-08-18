@@ -1,0 +1,28 @@
+create or replace NONEDITIONABLE TRIGGER   ventas.trg_venta_temporal
+AFTER update or insert or delete    
+on ventas.VENTA
+
+    REFERENCING old as old new as new  
+    
+     declare
+    cursor c_cursor is
+      select count(0) as total, avg(PRECIO_VENTA) as precio_promedio,ID_CLIENTE
+        from VENTAS.VENTAS_TEMPORAL
+        group by ID_CLIENTE;
+
+
+
+begin
+     for i IN c_cursor LOOP
+
+
+            update ventas.CLIENTE
+            set PRECIO_PROMEDIO = i.precio_promedio,
+                CANTIDAD_VEHICULOS_COMPRADOS = i.total
+            where ID_CLIENTE = i.ID_CLIENTE;
+
+
+          end loop;
+
+
+ end;
